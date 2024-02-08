@@ -1,0 +1,22 @@
+{
+  "menu": [
+    {
+      "url": "/dashboard",
+      "name": "Dashboard",
+      "icon": "menu-icon tf-icons mdi mdi-home-outline",
+      "slug": "pages-home"
+    },
+    {
+      "url": "/page-2",
+      "icon": "menu-icon tf-icons mdi mdi-file-document-outline",
+      "name": "Data Pemilik Jasa",
+      "slug": "pages-page-2"
+    },
+    {
+      "url": "/page-2",
+      "icon": "menu-icon tf-icons mdi mdi-file-document-outline",
+      "name": "Data Pencari Jasa",
+      "slug": "pages-page-2"
+    }
+  ]
+}
