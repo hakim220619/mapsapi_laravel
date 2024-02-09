@@ -7,16 +7,16 @@
       "slug": "pages-home"
     },
     {
-      "url": "/page-2",
+      "url": "/pemilik-list",
       "icon": "menu-icon tf-icons mdi mdi-file-document-outline",
       "name": "Data Pemilik Jasa",
-      "slug": "pages-page-2"
+      "slug": "pemilik"
     },
     {
-      "url": "/page-2",
+      "url": "/pencari-list-data",
       "icon": "menu-icon tf-icons mdi mdi-file-document-outline",
       "name": "Data Pencari Jasa",
-      "slug": "pages-page-2"
+      "slug": "pencari-list-data"
     }
   ]
 }

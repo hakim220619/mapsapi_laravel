@@ -9,6 +9,8 @@ use App\Http\Controllers\pages\MiscError;
 use App\Http\Controllers\authentications\LoginBasic;
 use App\Http\Controllers\authentications\RegisterBasic;
 use App\Http\Controllers\authentications\RegisterController;
+use App\Http\Controllers\pages\PemilikController;
+use App\Http\Controllers\pages\PencariController;
 
 /*
 |--------------------------------------------------------------------------
@@ -38,6 +40,8 @@ Route::get('/getLotlat', [HomePage::class, 'getLotlat'])->name('user.getLotlat')
 Route::middleware(['auth'])->group(function () {
     Route::get('/logout', [AuthController::class, 'logout'])->name('logoutFix');
     Route::get('/dashboard', [HomePage::class, 'dashboard'])->name('pages-home');
+    Route::get('/pemilik-list', [PemilikController::class, 'pemilik'])->name('pemilik-list');
+    Route::get('/pencari-list-data', [PencariController::class, 'pencari'])->name('pencari-list');
 });
 // // authentication
 // Route::get('/', [LoginBasic::class, 'index'])->name('auth-login-basic');

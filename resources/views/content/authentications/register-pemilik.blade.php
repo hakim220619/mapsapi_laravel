@@ -78,7 +78,7 @@
                     <div class="card-body mt-2">
 
                         <form id="formAuthentication" class="mb-3" action="{{ url('/register-pemilik-add') }}"
-                            method="POST">
+                            enctype="multipart/form-data" method="POST">
                             @csrf
                             <div class="row">
                                 <div class="col-md-6">
@@ -145,6 +145,11 @@
                                         <input type="text" class="form-control" id="alamat_jasa" name="alamat_jasa"
                                             placeholder="Enter your Alamat Jasa" autofocus>
                                         <label for="alamat_jasa">Alamat Jasa</label>
+                                    </div>
+                                    <div class="form-floating form-floating-outline mb-3">
+                                        <input type="file" class="form-control" id="image" name="image"
+                                            placeholder="Enter your Image" required>
+                                        <label for="image">Image</label>
                                     </div>
                                     <div class="form-floating form-floating-outline mb-3">
                                         <input type="text" class="form-control" id="latitude" name="latitude"

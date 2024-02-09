@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\File;
 
 class RegisterController extends Controller
 {
@@ -41,11 +42,18 @@ class RegisterController extends Controller
             'created_at' => now(),
         ];
         DB::table('users')->insert($data);
+
+        $file_path = public_path() . '/storage/images/jasa/' . $request->image;
+        File::delete($file_path);
+        $image = $request->file('image');
+        $filename = $image->getClientOriginalName();
+        $image->move(public_path('storage/images/jasa'), $filename);
         $data2 = [
             'user_id' => $id,
             'nama_jasa' => $request->nama_jasa,
             'jenis_jasa' => $request->jenis_jasa,
             'alamat_jasa' => $request->alamat_jasa,
+            'image' => $request->file('image')->getClientOriginalName(),
             'latitude' => $request->latitude,
             'longitude' => $request->longitude,
             'created_at' => now(),

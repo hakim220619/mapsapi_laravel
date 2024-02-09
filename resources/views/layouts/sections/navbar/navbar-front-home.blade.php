@@ -31,8 +31,8 @@
             </button>
             <ul class="navbar-nav me-auto p-3 p-lg-0">
                 <li class="nav-item">
-                    <a class="nav-link fw-medium" aria-current="page"
-                        href="{{ url('front-pages/landing') }}#landingHero">Cari Jasa</a>
+                    <a class="nav-link fw-medium" aria-current="page" href="{{ url('/') }}#mapsJasa">Cari
+                        Jasa</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link fw-medium" href="{{ url('front-pages/landing') }}#landingFeatures">Chat</a>
