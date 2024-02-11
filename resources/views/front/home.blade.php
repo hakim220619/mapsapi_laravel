@@ -113,6 +113,7 @@
                     // The user's latitude and longitude are in position.coords.latitude and position.coords.longitude
                     const latitude = position.coords.latitude;
                     const longitude = position.coords.longitude;
+
                     const map = L.map('map').setView([latitude, longitude], 10);
                     // console.log(latitude);
                     // console.log(longitude);
@@ -168,36 +169,48 @@
             // if ("geolocation" in navigator) {
             // Get the user's current location
 
+            navigator.geolocation.getCurrentPosition(function(position) {
+                // $("#map").html("");
+                // document.getElementById('map').innerHTML =
+                //     "< div id='map' style='width: 100%; height: 100%;'>";
+                const latitude = position.coords.latitude;
+                const longitude = position.coords.longitude;
 
-            var iconMarker = L.icon({
-                iconUrl: '{{ asset('assets/img/marker/marker.png') }}',
-                iconSize: [50, 50],
-            })
-            $.ajax({
-                type: 'GET',
-                url: '{{ route('user.searchgetLotlat') }}',
-                data: {
-                    // "_token": "{{ csrf_token() }}",
-                    keywords: params
-                },
-                async: true,
-                dataType: 'json',
-                success: function(data) {
-                    $('#map').hide();
-                    $('#map2').show();
-                    navigator.geolocation.getCurrentPosition(function(position) {
-                        // $("#map").html("");
-                        // document.getElementById('map').innerHTML =
-                        //     "< div id='map' style='width: 100%; height: 100%;'>";
-                        const latitude = position.coords.latitude;
-                        const longitude = position.coords.longitude;
-                        const map = L.map('map2').setView([latitude, longitude], 10);
-                        // // console.log(latitude);
-                        // console.log(longitude);
-                        const tiles = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                            maxZoom: 19,
-                            attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-                        }).addTo(map);
+                const map2 = L.map('map2').setView([latitude, longitude], 10);
+                // console.log(map);
+                // if (map != undefined || map != null) {
+
+                //     // map.off();
+                //     // map.remove();
+
+                //     const map = L.map('map2').setView([latitude, longitude], 10);
+                //     map.invalidateSize();
+                //     console.log(map);
+                // }
+                // // console.log(latitude);
+                // console.log(longitude);
+                const tiles = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    maxZoom: 19,
+                    attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+                }).addTo(map2);
+                var iconMarker = L.icon({
+                    iconUrl: '{{ asset('assets/img/marker/marker.png') }}',
+                    iconSize: [50, 50],
+                })
+                $.ajax({
+                    type: 'GET',
+                    url: '{{ route('user.searchgetLotlat') }}',
+                    data: {
+                        // "_token": "{{ csrf_token() }}",
+                        keywords: params
+                    },
+                    async: true,
+                    dataType: 'json',
+                    success: function(data) {
+                        $('#map').hide();
+                        $('#map2').show();
+
+
                         // console.log(data);
                         var i;
                         var no = 1;
@@ -208,19 +221,20 @@
                                     draggable: true
                                 })
                                 .bindPopup(data[i].nama_jasa)
-                                .addTo(map);
+                                .addTo(map2);
                         }
-                        var marker2 = L.marker([latitude, longitude], {
-                                //icon:iconMarker,
-                                draggable: true
-                            })
-                            .bindPopup('Titik Anda')
-                            .addTo(map);
-                    })
-                }
-            });
-            // console.log('asd');
 
+
+                    }
+                });
+                var marker2 = L.marker([latitude, longitude], {
+                        //icon:iconMarker,
+                        draggable: true
+                    })
+                    .bindPopup('Titik Anda')
+                    .addTo(map2);
+                // console.log('asd');
+            })
 
 
             // });
