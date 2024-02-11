@@ -31,6 +31,7 @@
     {{-- @php
         dd(isset($user));
     @endphp --}}
+
     @if (isset($user))
         <script>
             // Check if geolocation is available in the browser
@@ -113,8 +114,8 @@
                     const latitude = position.coords.latitude;
                     const longitude = position.coords.longitude;
                     const map = L.map('map').setView([latitude, longitude], 10);
-                    console.log(latitude);
-                    console.log(longitude);
+                    // console.log(latitude);
+                    // console.log(longitude);
                     const tiles = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
                         maxZoom: 19,
                         attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
@@ -140,13 +141,9 @@
                                     })
                                     .bindPopup(data[i].nama_jasa)
                                     .addTo(map);
-
-
                             }
                         }
                     });
-
-
 
                     var marker2 = L.marker([latitude, longitude], {
                             //icon:iconMarker,
@@ -164,6 +161,73 @@
 
     <script>
         tampil_data();
+        $('#map2').hide();
+
+        function getKeyword(params) {
+            console.log(params);
+            // if ("geolocation" in navigator) {
+            // Get the user's current location
+
+
+            var iconMarker = L.icon({
+                iconUrl: '{{ asset('assets/img/marker/marker.png') }}',
+                iconSize: [50, 50],
+            })
+            $.ajax({
+                type: 'GET',
+                url: '{{ route('user.searchgetLotlat') }}',
+                data: {
+                    // "_token": "{{ csrf_token() }}",
+                    keywords: params
+                },
+                async: true,
+                dataType: 'json',
+                success: function(data) {
+                    $('#map').hide();
+                    $('#map2').show();
+                    navigator.geolocation.getCurrentPosition(function(position) {
+                        // $("#map").html("");
+                        // document.getElementById('map').innerHTML =
+                        //     "< div id='map' style='width: 100%; height: 100%;'>";
+                        const latitude = position.coords.latitude;
+                        const longitude = position.coords.longitude;
+                        const map = L.map('map2').setView([latitude, longitude], 10);
+                        // // console.log(latitude);
+                        // console.log(longitude);
+                        const tiles = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                            maxZoom: 19,
+                            attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+                        }).addTo(map);
+                        // console.log(data);
+                        var i;
+                        var no = 1;
+                        for (i = 0; i < data.length; i++) {
+                            L.marker([data[i].latitude.replace(/r/g, ''), data[i].longitude.replace(
+                                    /r/g, '')], {
+                                    icon: iconMarker,
+                                    draggable: true
+                                })
+                                .bindPopup(data[i].nama_jasa)
+                                .addTo(map);
+                        }
+                        var marker2 = L.marker([latitude, longitude], {
+                                //icon:iconMarker,
+                                draggable: true
+                            })
+                            .bindPopup('Titik Anda')
+                            .addTo(map);
+                    })
+                }
+            });
+            // console.log('asd');
+
+
+
+            // });
+            // } else {
+            //     console.error("Geolocation is not available in this browser.");
+            // }
+        }
 
         function tampil_data() {
 
@@ -178,7 +242,7 @@
                     var i;
                     var no = 1;
                     for (i = 0; i < data.length; i++) {
-                        console.log(data);
+                        // console.log(data);
                         html += '<div class="col-lg-3 col-sm-6">' +
                             '<div class="card card-hover-border-primary mt-3 mt-lg-0 shadow-none">' +
                             '<div class="bg-label-primary position-relative team-image-box">' +
@@ -194,7 +258,7 @@
                             '</div>' +
                             '</div>';
                     }
-                    console.log(html);
+                    // console.log(html);
                     $('#show_data').html(html);
                     // $('#datatable').DataTable();
 
@@ -213,12 +277,27 @@
         <section id="mapsJasa" class="section-py landing-hero">
             <div class="col-12">
                 <div class="card mb-4">
-                    <h5 class="card-header">Mau Cari Jasa? <br>
-                        <p>Dapatkan info jasa terdekat dari titik anda</p>
-                    </h5>
+                    <div class="row">
+                        <div class="col-md-3">
+                            <h5 class="card-header">Mau Cari Jasa? <br>
+                                <p>Dapatkan info jasa terdekat dari titik anda</p>
+
+                            </h5>
+                        </div>
+                        <div class="col-md-6">
+
+                        </div>
+                        <div class="col-md-2">
+                            <br>
+                            <input type="text" class="form-control" id="search" name="search" placeholder="Search"
+                                onchange="getKeyword(this.value)">
+                        </div>
+                    </div>
+
 
                     <div class="card-body">
                         <div style="width: 100%; height: 500px;" id="map"></div>
+                        <div style="width: 100%; height: 500px;" id="map2"></div>
                     </div>
                 </div>
             </div>

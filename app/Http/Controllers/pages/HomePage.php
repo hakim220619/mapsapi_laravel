@@ -18,9 +18,22 @@ class HomePage extends Controller
   }
   function getLotlat()
   {
+
     $sql = '';
     if (isset(request()->user()->id)) {
       $sql = "and u.id = '" . request()->user()->id . "'";
+    }
+    $data = DB::select("select * from users u, jasa j where u.uid=j.user_id $sql");
+    echo json_encode($data);
+  }
+  function searchgetLotlat(Request $request)
+  {
+    // $request = request();
+    // dd($request->keywords);
+    $sql = '';
+
+    if ($request->keywords) {
+      $sql = "and j.nama_jasa like '%" . $request->keywords . "%'";
     }
     $data = DB::select("select * from users u, jasa j where u.uid=j.user_id $sql");
     echo json_encode($data);
