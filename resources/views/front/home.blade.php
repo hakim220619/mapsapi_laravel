@@ -31,6 +31,21 @@
     {{-- @php
         dd(isset($user));
     @endphp --}}
+    <!--Start of Tawk.to Script-->
+    <script type="text/javascript">
+        var Tawk_API = Tawk_API || {},
+            Tawk_LoadStart = new Date();
+        (function() {
+            var s1 = document.createElement("script"),
+                s0 = document.getElementsByTagName("script")[0];
+            s1.async = true;
+            s1.src = 'https://embed.tawk.to/65ca3d490ff6374032cc100f/1hmevuqhk';
+            s1.charset = 'UTF-8';
+            s1.setAttribute('crossorigin', '*');
+            s0.parentNode.insertBefore(s1, s0);
+        })();
+    </script>
+    <!--End of Tawk.to Script-->
 
     @if (isset($user))
         <script>
@@ -124,7 +139,7 @@
 
                     var iconMarker = L.icon({
                         iconUrl: '{{ asset('assets/img/marker/marker.png') }}',
-                        iconSize: [50, 50],
+                        iconSize: [100, 100],
                     })
                     $.ajax({
                         type: 'GET',
@@ -140,7 +155,11 @@
                                         icon: iconMarker,
                                         draggable: true
                                     })
-                                    .bindPopup(data[i].nama_jasa)
+                                    .bindPopup('Nama Jasa: ' + data[i].nama_jasa + ' <br> Jenis Jasa: ' +
+                                        data[
+                                            i].jenis_jasa + ' <br> Alamat: ' + data[i].alamat_jasa +
+                                        ' <br><br> <button type="button" class="btn btn-primary">Rating</button>'
+                                    )
                                     .addTo(map);
                             }
                         }
@@ -165,76 +184,82 @@
         $('#map2').hide();
 
         function getKeyword(params) {
-            console.log(params);
+            // console.log(params);
             // if ("geolocation" in navigator) {
             // Get the user's current location
 
-            navigator.geolocation.getCurrentPosition(function(position) {
-                // $("#map").html("");
-                // document.getElementById('map').innerHTML =
-                //     "< div id='map' style='width: 100%; height: 100%;'>";
-                const latitude = position.coords.latitude;
-                const longitude = position.coords.longitude;
 
-                const map2 = L.map('map2').setView([latitude, longitude], 10);
-                // console.log(map);
-                // if (map != undefined || map != null) {
+            // $("#map").html("");
+            // document.getElementById('map').innerHTML =
+            //     "< div id='map' style='width: 100%; height: 100%;'>";
 
-                //     // map.off();
-                //     // map.remove();
+            $.ajax({
+                type: 'GET',
+                url: '{{ route('user.searchgetLotlat') }}',
+                data: {
+                    // "_token": "{{ csrf_token() }}",
+                    keywords: params
+                },
+                async: true,
+                dataType: 'json',
+                success: function(data) {
+                    $('#map').hide();
+                    // $('#map2').show();
+                    var rand = Math.floor(Math.random() * 10);
+                    console.log(rand);
+                    $('#adddiv').html('<div style="width: 100%; height: 500px;" id="map' + rand + '"></div>');
+                    navigator.geolocation.getCurrentPosition(function(position) {
+                        const latitude = position.coords.latitude;
+                        const longitude = position.coords.longitude;
 
-                //     const map = L.map('map2').setView([latitude, longitude], 10);
-                //     map.invalidateSize();
-                //     console.log(map);
-                // }
-                // // console.log(latitude);
-                // console.log(longitude);
-                const tiles = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                    maxZoom: 19,
-                    attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-                }).addTo(map2);
-                var iconMarker = L.icon({
-                    iconUrl: '{{ asset('assets/img/marker/marker.png') }}',
-                    iconSize: [50, 50],
-                })
-                $.ajax({
-                    type: 'GET',
-                    url: '{{ route('user.searchgetLotlat') }}',
-                    data: {
-                        // "_token": "{{ csrf_token() }}",
-                        keywords: params
-                    },
-                    async: true,
-                    dataType: 'json',
-                    success: function(data) {
-                        $('#map').hide();
-                        $('#map2').show();
+                        const map2 = L.map('map' + rand + '').setView([latitude, longitude], 10);
 
+                        // console.log(longitude);
+                        const tiles = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                            maxZoom: 19,
+                            attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+                        }).addTo(map2);
+                        var iconMarker = L.icon({
+                            iconUrl: '{{ asset('assets/img/marker/marker.png') }}',
+                            iconSize: [50, 50],
+                        })
 
                         // console.log(data);
                         var i;
                         var no = 1;
                         for (i = 0; i < data.length; i++) {
+                            // function onLocationFound(e) {
+                            // console.log(e);
                             L.marker([data[i].latitude.replace(/r/g, ''), data[i].longitude.replace(
                                     /r/g, '')], {
                                     icon: iconMarker,
                                     draggable: true
                                 })
-                                .bindPopup(data[i].nama_jasa)
+                                .bindPopup('Nama Jasa: ' + data[i].nama_jasa + ' <br> Jenis Jasa: ' +
+                                    data[
+                                        i].jenis_jasa + ' <br> Alamat: ' + data[i].alamat_jasa +
+                                    ' <br><br> <button type="button" class="btn btn-primary">Rating</button>'
+                                )
                                 .addTo(map2);
+                            // }
+
+                            // map2.on('locationfound', onLocationFound);
+
                         }
+                        var marker2 = L.marker([latitude, longitude], {
+                                //icon:iconMarker,
+                                draggable: true
+                            })
+                            .bindPopup('Titik Anda')
+                            .addTo(map2);
 
-
-                    }
-                });
-                var marker2 = L.marker([latitude, longitude], {
-                        //icon:iconMarker,
-                        draggable: true
                     })
-                    .bindPopup('Titik Anda')
-                    .addTo(map2);
-                // console.log('asd');
-            })
+                }
+
+            });
+
+            // console.log('asd');
+
 
 
             // });
@@ -266,7 +291,7 @@
                             '<div class="card-body text-center">' +
                             '<h5 class="card-title fw-semibold mb-1">' + data[i].nama_jasa + '</h5>' +
                             ' <p class="card-text">' + data[i].jenis_jasa + '</p>' +
-                            '<div class="text-center team-media-icons">' +
+                            '<div class="text-center team-media-icons"><button type="button" class="btn btn-primary">Rating</button>' +
                             '</div>' +
                             '</div>' +
                             '</div>' +
@@ -309,9 +334,9 @@
                     </div>
 
 
-                    <div class="card-body">
+                    <div class="card-body" id="adddiv">
                         <div style="width: 100%; height: 500px;" id="map"></div>
-                        <div style="width: 100%; height: 500px;" id="map2"></div>
+                        {{-- <div style="width: 100%; height: 500px;" id="map2"></div> --}}
                     </div>
                 </div>
             </div>

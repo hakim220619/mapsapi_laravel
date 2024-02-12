@@ -16,9 +16,8 @@
             </button>
             <!-- Mobile menu toggle: End-->
             <a href="{{ url('front-pages/landing') }}" class="app-brand-link">
-                <span class="app-brand-logo demo">@include('_partials.macros', ['width' => 25, 'withbg' => 'var(--bs-primary)'])</span>
-                <span
-                    class="app-brand-text demo menu-text fw-bold ms-2 ps-1">{{ config('variables.templateName') }}</span>
+                {{-- <span class="app-brand-logo demo"> @include('_partials.macros', ['width' => 25, 'withbg' => 'var(--bs-primary)'])</span> --}}
+                <span class="app-brand-text demo menu-text fw-bold ms-2 ps-1">Jasa</span>
             </a>
         </div>
         <!-- Menu logo wrapper: End -->
@@ -34,12 +33,12 @@
                     <a class="nav-link fw-medium" aria-current="page" href="{{ url('/') }}#mapsJasa">Cari
                         Jasa</a>
                 </li>
-                <li class="nav-item">
+                {{-- <li class="nav-item">
                     <a class="nav-link fw-medium" href="{{ url('front-pages/landing') }}#landingFeatures">Chat</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link fw-medium" href="{{ url('front-pages/landing') }}#landingTeam">About</a>
-                </li>
+                </li> --}}
 
 
             </ul>
