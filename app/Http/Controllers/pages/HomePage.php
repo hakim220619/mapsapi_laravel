@@ -19,11 +19,7 @@ class HomePage extends Controller
   function getLotlat()
   {
 
-    $sql = '';
-    if (isset(request()->user()->id)) {
-      $sql = "and u.id = '" . request()->user()->id . "'";
-    }
-    $data = DB::select("select * from users u, jasa j where u.uid=j.user_id $sql");
+    $data = DB::select("select * from users u, jasa j where u.uid=j.user_id");
     echo json_encode($data);
   }
   function searchgetLotlat(Request $request)
@@ -36,6 +32,31 @@ class HomePage extends Controller
       $sql = "and j.nama_jasa like '%" . $request->keywords . "%'";
     }
     $data = DB::select("select * from users u, jasa j where u.uid=j.user_id $sql");
+    echo json_encode($data);
+  }
+
+  function messgaeSend(Request $request)
+  {
+    $data = [
+      'id_user' => request()->user()->uid,
+      'id_admin' => $request->uidadmin,
+      'message' => $request->msg,
+      'type' => 'Y',
+      'created_at' => now()
+
+    ];
+    DB::table('chat')->insert($data);
+    return response()->json([
+      'succes' => true,
+      'message' => $request->msg,
+      'uid' => $request->uidadmin
+    ]);
+  }
+
+  function getMessage(Request $request)
+  {
+
+    $data = DB::select("select * from chat where id_admin = '$request->id_admin' and id_user = '" . request()->user()->uid . "'");
     echo json_encode($data);
   }
   public function dashboard()

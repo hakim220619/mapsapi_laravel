@@ -204,9 +204,10 @@
                 dataType: 'json',
                 success: function(data) {
                     $('#map').hide();
+                    $('#show_data').hide();
                     // $('#map2').show();
                     var rand = Math.floor(Math.random() * 10);
-                    console.log(rand);
+                    // console.log(rand);
                     $('#adddiv').html('<div style="width: 100%; height: 500px;" id="map' + rand + '"></div>');
                     navigator.geolocation.getCurrentPosition(function(position) {
                         const latitude = position.coords.latitude;
@@ -246,6 +247,30 @@
                             // map2.on('locationfound', onLocationFound);
 
                         }
+                        $('#show_data2').html(
+                            '<h3 class="text-center mb-2"><span class="fw-bold">List</span> Jasa</h3><div class="row gy-5 mt-2" id="dataShow' +
+                            rand + '">');
+                        var html = '';
+                        for (i = 0; i < data.length; i++) {
+                            // console.log(data);
+                            html += '<div class="col-lg-3 col-sm-6">' +
+                                '<div class="card card-hover-border-primary mt-3 mt-lg-0 shadow-none">' +
+                                '<div class="bg-label-primary position-relative team-image-box">' +
+                                ' <img src="{{ asset('') }}storage/images/jasa/' + data[i].image +
+                                '" alt="section title icon" class="me-2" />' +
+                                '</div>' +
+                                '<div class="card-body text-center">' +
+                                '<h5 class="card-title fw-semibold mb-1">' + data[i].nama_jasa +
+                                '</h5>' +
+                                ' <p class="card-text">' + data[i].jenis_jasa + '</p>' +
+                                '<div class="text-center team-media-icons"><button type="button" class="btn btn-primary" onclick="openModal()"> Chat </button>' +
+                                '</div>' +
+                                '</div>' +
+                                '</div>' +
+                                '</div>';
+                        }
+                        // console.log(html);
+                        $('#dataShow' + rand + '').html(html);
                         var marker2 = L.marker([latitude, longitude], {
                                 //icon:iconMarker,
                                 draggable: true
@@ -291,7 +316,8 @@
                             '<div class="card-body text-center">' +
                             '<h5 class="card-title fw-semibold mb-1">' + data[i].nama_jasa + '</h5>' +
                             ' <p class="card-text">' + data[i].jenis_jasa + '</p>' +
-                            '<div class="text-center team-media-icons"><button type="button" class="btn btn-primary">Rating</button>' +
+                            '<div class="text-center team-media-icons"><button type="button" class="btn btn-primary" onclick="openModal(' +
+                            data[i].uid + ')"> Chat </button>' +
                             '</div>' +
                             '</div>' +
                             '</div>' +
@@ -305,15 +331,140 @@
                 }
             });
         }
+        // modalChat();
+
+        function openModal(uid) {
+            // console.log(uid);
+            $.ajax({
+                type: 'GET',
+                url: '{{ route('user.getMessage') }}',
+                data: {
+                    "_token": "{{ csrf_token() }}",
+                    id_admin: uid,
+                },
+                async: true,
+                dataType: 'json',
+                success: function(data) {
+                    var html = '';
+                    var htmlChat = '';
+                    html +=
+                        '<div class="modal fade" id="chatModal" tabindex="-1" aria-hidden="true"><div class="modal-dialog modal-simple modal-pricing"><div class="modal-content p-2 p-md-5"><div class="modal-body py-3 py-md-0"><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button><h2>Chat Messages</h2>' +
+                        '<div id="chatsmessage"></div>'
+
+                    '</div></div></div></div>'
+                    $('#mapsJasa').html(
+                        html
+                    );
+                    for (i = 0; i < data.length; i++) {
+                        // console.log(data);
+                        if (data[i].type == 'Y') {
+                            htmlChat +=
+                                '<div class="container123"><p>' +
+                                data[i].message + '</p><span class="time-right">' + data[i].created_at +
+                                '</span></div>';
+                        } else {
+                            htmlChat +=
+                                '<div class="container123 darker"><p>' +
+                                data[i].message + '</p><span class="time-left">' + data[i].created_at +
+                                '</span></div>';
+                        }
+
+
+                    }
+                    htmlChat +=
+                        '<div class="row"><div class="col-md-8"><input type="text" class="form-control" id="message" name="message"><input type="hidden" class="form-control" id="uidadmin" value="' +
+                        uid +
+                        '"></div> <div class="col-md-4"><button type="button" class="btn btn-primary" onclick="sendMessage()">Send</button> </div></div>';
+                    $('#chatsmessage').html(
+                        htmlChat
+                    );
+                    $('#chatModal').modal('show');
+                    // console.log(html);
+
+
+                }
+            });
+
+        }
+
+        function close() {
+            $('#chatModal').modal('hide');
+        }
+
+
+        function sendMessage() {
+            var msg = $('#message').val();
+            var uidadmin = $('#uidadmin').val();
+            $.ajax({
+                type: 'POST',
+                url: '{{ route('messgaeSend') }}',
+                data: {
+                    "_token": "{{ csrf_token() }}",
+                    msg: msg,
+                    uidadmin: uidadmin,
+                },
+                async: true,
+                dataType: 'json',
+                success: function(data) {
+                    openModal(data.uid);
+                    close();
+                }
+            });
+        }
     </script>
 
 
 @endsection
 
 @section('content')
+    <style>
+        .container123 {
+            border: 2px solid #dedede;
+            background-color: #f1f1f1;
+            border-radius: 5px;
+            padding: 10px;
+            margin: 10px 0;
+        }
+
+        .darker {
+            border-color: #ccc;
+            background-color: #ddd;
+        }
+
+        .container123::after {
+            content: "";
+            clear: both;
+            display: table;
+        }
+
+        .container123 img {
+            float: left;
+            max-width: 60px;
+            width: 100%;
+            margin-right: 20px;
+            border-radius: 50%;
+        }
+
+        .container123 img.right {
+            float: right;
+            margin-left: 20px;
+            margin-right: 0;
+        }
+
+        .time-right {
+            float: right;
+            color: #aaa;
+        }
+
+        .time-left {
+            float: left;
+            color: #999;
+        }
+    </style>
+
     <div data-bs-spy="scroll" class="scrollspy-example">
         <!-- Hero: Start -->
-        <section id="mapsJasa" class="section-py landing-hero">
+        <section class="section-py landing-hero">
             <div class="col-12">
                 <div class="card mb-4">
                     <div class="row">
@@ -338,6 +489,7 @@
                         <div style="width: 100%; height: 500px;" id="map"></div>
                         {{-- <div style="width: 100%; height: 500px;" id="map2"></div> --}}
                     </div>
+                    <div id="mapsJasa"></div>
                 </div>
             </div>
         </section>
@@ -348,7 +500,7 @@
 
         <!-- Our great team: Start -->
         <section id="landingTeam" class="section-py landing-team">
-            <div class="container bg-icon-right">
+            <div class="container bg-icon-right" id="show_data2">
                 {{-- <h6 class="text-center fw-semibold d-flex justify-content-center align-items-center mb-4">
                     <img src="{{ asset('assets/img/front-pages/icons/section-tilte-icon.png') }}" alt="section title icon"
                         class="me-2" />
@@ -362,7 +514,41 @@
         </section>
         <!-- Our great team: End -->
 
+        {{-- <div class="modal fade" id="chatModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-simple modal-pricing">
+                <div class="modal-content p-2 p-md-5">
+                    <div class="modal-body py-3 py-md-0">
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        <!-- Pricing Plans -->
+                        <h2>Chat Messages</h2>
 
+                        <div class="container123">
+                            <img src="/w3images/bandmember.jpg" alt="Avatar" style="width:100%;">
+                            <p>Hello. How are you today?</p>
+                            <span class="time-right">11:00</span>
+                        </div>
+
+                        <div class="container123 darker">
+                            <img src="/w3images/avatar_g2.jpg" alt="Avatar" class="right" style="width:100%;">
+                            <p>Hey! I'm fine. Thanks for asking!</p>
+                            <span class="time-left">11:01</span>
+                        </div>
+
+                        <div class="container123">
+                            <img src="/w3images/bandmember.jpg" alt="Avatar" style="width:100%;">
+                            <p>Sweet! So, what do you wanna do today?</p>
+                            <span class="time-right">11:02</span>
+                        </div>
+
+                        <div class="container123 darker">
+                            <img src="/w3images/avatar_g2.jpg" alt="Avatar" class="right" style="width:100%;">
+                            <p>Nah, I dunno. Play soccer.. or learn more coding perhaps?</p>
+                            <span class="time-left">11:05</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div> --}}
 
 
 

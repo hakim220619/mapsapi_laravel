@@ -38,6 +38,8 @@ Route::get('lang/{locale}', [LanguageController::class, 'swap']);
 Route::get('/pages/misc-error', [MiscError::class, 'index'])->name('pages-misc-error');
 Route::get('/getLotlat', [HomePage::class, 'getLotlat'])->name('user.getLotlat');
 Route::get('/searchgetLotlat', [HomePage::class, 'searchgetLotlat'])->name('user.searchgetLotlat');
+Route::get('/getMessage', [HomePage::class, 'getMessage'])->name('user.getMessage');
+Route::post('/messgaeSend', [HomePage::class, 'messgaeSend'])->name('messgaeSend');
 Route::middleware(['auth'])->group(function () {
     Route::get('/logout', [AuthController::class, 'logout'])->name('logoutFix');
     Route::get('/dashboard', [HomePage::class, 'dashboard'])->name('pages-home');
