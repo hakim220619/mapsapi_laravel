@@ -483,8 +483,6 @@
                                 onchange="getKeyword(this.value)">
                         </div>
                     </div>
-
-
                     <div class="card-body" id="adddiv">
                         <div style="width: 100%; height: 500px;" id="map"></div>
                         {{-- <div style="width: 100%; height: 500px;" id="map2"></div> --}}
