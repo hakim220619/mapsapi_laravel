@@ -24,6 +24,8 @@ use App\Http\Controllers\pages\PencariController;
 */
 
 Route::get('/', [HomePage::class, 'index'])->name('home');
+Route::get('/chat', [HomePage::class, 'chat'])->name('chat');
+Route::get('/getMessageById', [HomePage::class, 'getMessageById'])->name('chat.getMessageById');
 
 
 Route::get('/login', [AuthController::class, 'login'])->name('login');

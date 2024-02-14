@@ -15,7 +15,7 @@
                 <i class="tf-icons mdi mdi-menu mdi-24px align-middle"></i>
             </button>
             <!-- Mobile menu toggle: End-->
-            <a href="{{ url('front-pages/landing') }}" class="app-brand-link">
+            <a href="{{ url('/') }}" class="app-brand-link">
                 {{-- <span class="app-brand-logo demo"> @include('_partials.macros', ['width' => 25, 'withbg' => 'var(--bs-primary)'])</span> --}}
                 <span class="app-brand-text demo menu-text fw-bold ms-2 ps-1">Jasa</span>
             </a>
@@ -33,10 +33,13 @@
                     <a class="nav-link fw-medium" aria-current="page" href="{{ url('/') }}#mapsJasa">Cari
                         Jasa</a>
                 </li>
+                @if (isset(request()->user()->id))
+                    <li class="nav-item">
+                        <a class="nav-link fw-medium" href="/dashboard">Chat</a>
+                    </li>
+                @endif
+
                 {{-- <li class="nav-item">
-                    <a class="nav-link fw-medium" href="{{ url('front-pages/landing') }}#landingFeatures">Chat</a>
-                </li>
-                <li class="nav-item">
                     <a class="nav-link fw-medium" href="{{ url('front-pages/landing') }}#landingTeam">About</a>
                 </li> --}}
 

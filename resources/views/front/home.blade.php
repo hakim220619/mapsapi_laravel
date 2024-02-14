@@ -501,58 +501,12 @@
         <!-- Our great team: Start -->
         <section id="landingTeam" class="section-py landing-team">
             <div class="container bg-icon-right" id="show_data2">
-                {{-- <h6 class="text-center fw-semibold d-flex justify-content-center align-items-center mb-4">
-                    <img src="{{ asset('assets/img/front-pages/icons/section-tilte-icon.png') }}" alt="section title icon"
-                        class="me-2" />
-                    <span class="text-uppercase">our great team</span>
-                </h6> --}}
                 <h3 class="text-center mb-2"><span class="fw-bold">List</span> Jasa</h3>
                 {{-- <p class="text-center fw-medium mb-3 mb-md-5 pb-3">Who is behind these great-looking interfaces?</p> --}}
                 <div class="row gy-5 mt-2" id="show_data">
 
 
         </section>
-        <!-- Our great team: End -->
 
-        {{-- <div class="modal fade" id="chatModal" tabindex="-1" aria-hidden="true">
-            <div class="modal-dialog modal-simple modal-pricing">
-                <div class="modal-content p-2 p-md-5">
-                    <div class="modal-body py-3 py-md-0">
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                        <!-- Pricing Plans -->
-                        <h2>Chat Messages</h2>
-
-                        <div class="container123">
-                            <img src="/w3images/bandmember.jpg" alt="Avatar" style="width:100%;">
-                            <p>Hello. How are you today?</p>
-                            <span class="time-right">11:00</span>
-                        </div>
-
-                        <div class="container123 darker">
-                            <img src="/w3images/avatar_g2.jpg" alt="Avatar" class="right" style="width:100%;">
-                            <p>Hey! I'm fine. Thanks for asking!</p>
-                            <span class="time-left">11:01</span>
-                        </div>
-
-                        <div class="container123">
-                            <img src="/w3images/bandmember.jpg" alt="Avatar" style="width:100%;">
-                            <p>Sweet! So, what do you wanna do today?</p>
-                            <span class="time-right">11:02</span>
-                        </div>
-
-                        <div class="container123 darker">
-                            <img src="/w3images/avatar_g2.jpg" alt="Avatar" class="right" style="width:100%;">
-                            <p>Nah, I dunno. Play soccer.. or learn more coding perhaps?</p>
-                            <span class="time-left">11:05</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div> --}}
-
-
-
-
-        <!-- Contact Us: End -->
     </div>
 @endsection
