@@ -143,7 +143,7 @@
     "perfect-scrollbar": "1.5.5",
     "plyr": "3.7.8",
     "quill": "1.3.7",
-    "rateyo": "2.3.5",
+    "rateyo": "^2.3.5",
     "select2": "4.0.13",
     "shepherd.js": "10.0.1",
     "sortablejs": "1.15.0",
