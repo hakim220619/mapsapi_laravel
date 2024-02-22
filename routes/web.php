@@ -44,6 +44,7 @@ Route::get('/getMessage', [HomePage::class, 'getMessage'])->name('user.getMessag
 Route::post('/messgaeSend', [HomePage::class, 'messgaeSend'])->name('messgaeSend');
 Route::middleware(['auth'])->group(function () {
     Route::get('/logout', [AuthController::class, 'logout'])->name('logoutFix');
+    Route::get('/logout_users', [AuthController::class, 'logout_users'])->name('logout_usersFix');
     Route::get('/dashboard', [HomePage::class, 'dashboard'])->name('pages-home');
     Route::get('/pemilik-list', [PemilikController::class, 'pemilik'])->name('pemilik-list');
     Route::get('/pencari-list-data', [PencariController::class, 'pencari'])->name('pencari-list');

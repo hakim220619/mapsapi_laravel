@@ -84,9 +84,9 @@
                             class="tf-icons mdi mdi-account me-md-1"></span><span
                             class="d-none d-md-block">Login</span></a>
                 @else
-                    <button class="btn btn-primary px-2 px-sm-4 px-lg-2 px-xl-4"><span
+                    <a href="{{ url('/logout_users') }}" class="btn btn-primary px-2 px-sm-4 px-lg-2 px-xl-4"><span
                             class="tf-icons mdi mdi-account me-md-1"></span><span
-                            class="d-none d-md-block">{{ request()->user()->name }}</span></button>
+                            class="d-none d-md-block">{{ request()->user()->name }}</span></a>
                 @endif
 
 
