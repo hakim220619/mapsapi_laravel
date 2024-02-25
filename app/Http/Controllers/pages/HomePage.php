@@ -34,7 +34,7 @@ class HomePage extends Controller
   function getLotlat()
   {
 
-    $data = DB::select("select * from users u, jasa j where u.uid=j.user_id");
+    $data = DB::select("select u.name, u.uid, j.*, (SELECT SUM(r.rate) / COUNT(id)  FROM rating r WHERE r.jasa_id=j.user_id) as rating from users u, jasa j where u.uid=j.user_id");
     echo json_encode($data);
   }
   function searchgetLotlat(Request $request)
@@ -44,10 +44,14 @@ class HomePage extends Controller
     $sql = '';
 
     if ($request->keywords) {
-      $sql = "and j.nama_jasa like '%" . $request->keywords . "%'";
+      $sql = "and j.jenis_jasa like '%" . $request->keywords . "%'";
     }
-    $data = DB::select("select * from users u, jasa j where u.uid=j.user_id $sql");
-    echo json_encode($data);
+    $data = DB::select("select u.name, u.uid, j.*, (SELECT SUM(r.rate) / COUNT(id)  FROM rating r WHERE r.jasa_id=j.user_id) as rating from users u, jasa j where u.uid=j.user_id $sql");
+    return response()->json([
+      'succes' => true,
+      'data' => $data,
+      'keywords' => $request->keywords
+    ]);
   }
 
   function messgaeSend(Request $request)
@@ -90,5 +94,23 @@ class HomePage extends Controller
   public function dashboard()
   {
     return view('content.pages.pages-home');
+  }
+
+  function giveRating(Request $request)
+  {
+    // dd($request->all());
+    $data = [
+      'jasa_id' => $request->jasa_id,
+      'user_id' => request()->user()->uid,
+      'rate' => $request->rating,
+      'updated_at' => now()
+    ];
+    DB::table('rating')->insert($data);
+    return response()->json([
+      'success' => true,
+      'message' => 'Rate Success Update',
+      'data' => $request->rating,
+      'key' => $request->key
+    ]);
   }
 }

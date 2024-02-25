@@ -35,6 +35,7 @@
         integrity="sha256-WBkoXOwTeyKclOHuWtc+i2uENFpDZ9YPdf5Hf+D7ewM=" crossorigin=""></script>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/rateYo/2.3.2/jquery.rateyo.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     {{-- @php
         dd(isset($user));
     @endphp --}}
@@ -61,7 +62,7 @@
         $('#map2').hide();
 
         function getKeyword(params) {
-            // console.log(params);
+            console.log(params);
             // if ("geolocation" in navigator) {
             // Get the user's current location
 
@@ -84,7 +85,7 @@
                     $('#show_data').hide();
                     // $('#map2').show();
                     var rand = Math.floor(Math.random() * 10);
-                    // console.log(rand);
+                    // console.log(data.data);
                     $('#adddiv').html('<div style="width: 100%; height: 500px;" id="map' + rand + '"></div>');
                     navigator.geolocation.getCurrentPosition(function(position) {
                         const latitude = position.coords.latitude;
@@ -102,21 +103,24 @@
                             iconSize: [50, 50],
                         })
 
-                        // console.log(data);
+                        // console.log(data.data);
                         var i;
                         var no = 1;
-                        for (i = 0; i < data.length; i++) {
+                        for (i = 0; i < data.data.length; i++) {
                             // function onLocationFound(e) {
                             // console.log(e);
-                            L.marker([data[i].latitude.replace(/r/g, ''), data[i].longitude.replace(
-                                    /r/g, '')], {
+                            L.marker([data.data[i].latitude.replace(/r/g, ''), data.data[i].longitude
+                                    .replace(
+                                        /r/g, '')
+                                ], {
                                     icon: iconMarker,
                                     draggable: true
                                 })
-                                .bindPopup('Nama Jasa: ' + data[i].nama_jasa + ' <br> Jenis Jasa: ' +
-                                    data[
-                                        i].jenis_jasa + ' <br> Alamat: ' + data[i].alamat_jasa +
-                                    '<div id="rateYo' + data[i].id +
+                                .bindPopup('Nama Jasa: ' + data.data[i].nama_jasa +
+                                    ' <br> Jenis Jasa: ' +
+                                    data.data[
+                                        i].jenis_jasa + ' <br> Alamat: ' + data.data[i].alamat_jasa +
+                                    '<div id="rateYo' + data.data[i].id +
                                     '" style="margin-left: 38px;"></div><br>'
                                 )
                                 .addTo(map2);
@@ -129,20 +133,26 @@
                             '<h3 class="text-center mb-2"><span class="fw-bold">List</span> Jasa</h3><div class="row gy-5 mt-2" id="dataShow' +
                             rand + '">');
                         var html = '';
-                        for (i = 0; i < data.length; i++) {
-                            // console.log(data);
+                        for (i = 0; i < data.data.length; i++) {
+                            // console.log(data.data);
                             html += '<div class="col-lg-3 col-sm-6">' +
                                 '<div class="card card-hover-border-primary mt-3 mt-lg-0 shadow-none">' +
                                 '<div class="bg-label-primary position-relative team-image-box">' +
-                                ' <img src="{{ asset('') }}storage/images/jasa/' + data[i].image +
+                                ' <img src="{{ asset('') }}storage/images/jasa/' + data.data[i]
+                                .image +
                                 '" alt="section title icon" class="me-2" />' +
                                 '</div>' +
                                 '<div class="card-body text-center">' +
-                                '<h5 class="card-title fw-semibold mb-1">' + data[i].nama_jasa +
+                                '<h5 class="card-title fw-semibold mb-1">' + data.data[i].nama_jasa +
                                 '</h5>' +
-                                ' <p class="card-text">' + data[i].jenis_jasa + '</p>' +
-                                '<div id="rateYo' + data[i].id + '" style="margin-left: 40px;"></div>' +
+                                ' <p class="card-text">' + data.data[i].jenis_jasa + '</p>' +
+                                '<div id="rateYo' + data.data[i].id +
+                                '" style="margin-left: 40px;"></div>' +
                                 '<div class="text-center team-media-icons"><button type="button" class="btn btn-primary" onclick="openModal()"> Chat </button>' +
+                                '<button type="button" class="btn btn-success ms-1" onclick="ratingOpen(' +
+                                data.data[i]
+                                .uid +
+                                ')"> Rating </button>' +
                                 '</div>' +
                                 '</div>' +
                                 '</div>' +
@@ -150,16 +160,28 @@
                         }
                         // console.log(html);
                         $('#dataShow' + rand + '').html(html);
-                        for (i = 0; i < data.length; i++) {
-                            $("#rateYo" + data[i].id + "").rateYo({
-                                rating: data[i].rate,
-                                spacing: "10px",
-                                numStars: 5,
-                                minValue: 0,
-                                maxValue: 5,
-                                normalFill: 'black',
-                                ratedFill: 'orange',
-                            })
+                        for (i = 0; i < data.data.length; i++) {
+                            if (data.data[i].rating == null) {
+                                $("#rateYo" + data.data[i].id + "").rateYo({
+                                    rating: 0,
+                                    spacing: "10px",
+                                    numStars: 5,
+                                    minValue: 0,
+                                    maxValue: 5,
+                                    normalFill: 'black',
+                                    ratedFill: 'orange',
+                                })
+                            } else {
+                                $("#rateYo" + data.data[i].id + "").rateYo({
+                                    rating: data.data[i].rating,
+                                    spacing: "10px",
+                                    numStars: 5,
+                                    minValue: 0,
+                                    maxValue: 5,
+                                    normalFill: 'black',
+                                    ratedFill: 'orange',
+                                })
+                            }
                         }
                         var marker2 = L.marker([latitude, longitude], {
                                 //icon:iconMarker,
@@ -209,31 +231,92 @@
                             '<div id="rateYo' + data[i].id + '" style="margin-left: 38px;"></div><br>' +
                             '<div class="text-center team-media-icons"><button type="button" class="btn btn-primary" onclick="openModal(' +
                             data[i].uid + ')"> Chat </button>' +
+                            '<button type="button" class="btn btn-success ms-1" onclick="ratingOpen(' + data[i]
+                            .uid +
+                            ')"> Rating </button>' +
                             '</div>' +
                             '</div>' +
                             '</div>' +
                             '</div>';
 
                     }
-                    // console.log(html);
+                    // console.log(data[i].rating);
                     $('#show_data').html(html);
                     // $('#datatable').DataTable();
                     for (i = 0; i < data.length; i++) {
-                        $("#rateYo" + data[i].id + "").rateYo({
-                            rating: data[i].rate,
-                            spacing: "10px",
-                            numStars: 5,
-                            minValue: 0,
-                            maxValue: 5,
-                            normalFill: 'black',
-                            ratedFill: 'orange',
-                        })
+                        // console.log(data);
+                        if (data[i].rating == null) {
+                            $("#rateYo" + data[i].id + "").rateYo({
+                                rating: 0,
+                                spacing: "10px",
+                                numStars: 5,
+                                minValue: 0,
+                                maxValue: 5,
+                                normalFill: 'black',
+                                ratedFill: 'orange',
+                            })
+                        } else {
+                            $("#rateYo" + data[i].id + "").rateYo({
+                                rating: data[i].rating,
+                                spacing: "10px",
+                                numStars: 5,
+                                minValue: 0,
+                                maxValue: 5,
+                                normalFill: 'black',
+                                ratedFill: 'orange',
+                            })
+                        }
+
                     }
 
                 }
             });
         }
         // modalChat();
+
+        function ratingOpen(uid) {
+
+            Swal.fire({
+                title: "Give Rating",
+                input: "text",
+                inputAttributes: {
+                    autocapitalize: "off"
+                },
+                showCancelButton: true,
+                confirmButtonText: "Submit",
+                showLoaderOnConfirm: true,
+                preConfirm: async (rat) => {
+
+                },
+                allowOutsideClick: () => !Swal.isLoading()
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    var keyw = $('#search').val();
+                    // console.log(keyw);
+                    $.ajax({
+                        type: 'POST',
+                        url: '{{ route('giveRating') }}',
+                        data: {
+                            "_token": "{{ csrf_token() }}",
+                            jasa_id: uid,
+                            rating: result.value,
+                            key: keyw
+                        },
+                        async: true,
+                        dataType: 'json',
+                        success: function(data) {
+                            Swal.fire("Rating Succes Added");
+                            // console.log(data.key);
+                            if (data.key == null) {
+                                tampil_data();
+                            } else {
+                                getKeyword(data.key);
+                            }
+                        }
+                    });
+                }
+            });
+        }
 
         function openModal(uid) {
             // console.log(uid);
