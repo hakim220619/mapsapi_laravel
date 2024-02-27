@@ -47,8 +47,10 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/logout_users', [AuthController::class, 'logout_users'])->name('logout_usersFix');
     Route::get('/dashboard', [HomePage::class, 'dashboard'])->name('pages-home');
     Route::get('/pemilik-list', [PemilikController::class, 'pemilik'])->name('pemilik-list');
+    Route::post('/update-pemilik', [PemilikController::class, 'updatePemilik'])->name('update-pemilik');
     Route::get('/pencari-list-data', [PencariController::class, 'pencari'])->name('pencari-list');
     Route::post('/giveRating', [HomePage::class, 'giveRating'])->name('giveRating');
+    Route::get('/jasaPemilik', [HomePage::class, 'jasaPemilik'])->name('jasaPemilik');
 });
 // // authentication
 // Route::get('/', [LoginBasic::class, 'index'])->name('auth-login-basic');

@@ -113,4 +113,10 @@ class HomePage extends Controller
       'key' => $request->key
     ]);
   }
+  function jasaPemilik()
+  {
+    $data['jasa'] = DB::select('select j.*, u.name from jasa j, users u where j.user_id=u.uid and j.user_id = ' . request()->user()->uid . '');
+    // dd($data);
+    return view('content.jasa.index', $data);
+  }
 }

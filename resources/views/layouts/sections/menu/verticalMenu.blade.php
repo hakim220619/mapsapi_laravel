@@ -96,6 +96,17 @@
                 {{-- submenu --}}
 
             </li>
+            <li class="menu-item {{ $activeClass }}">
+                <a href="/jasaPemilik" class="menu-link"> <i
+                        class="menu-icon tf-icons mdi mdi-arrow-right-bold-circle"></i>
+
+                    <div>Jasa</div>
+
+                </a>
+
+                {{-- submenu --}}
+
+            </li>
         @endif
     </ul>
 
