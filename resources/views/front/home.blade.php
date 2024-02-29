@@ -36,6 +36,10 @@
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/rateYo/2.3.2/jquery.rateyo.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.css" />
+    <script src="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.js"></script>
+
+
     {{-- @php
         dd(isset($user));
     @endphp --}}
@@ -62,7 +66,7 @@
         $('#map2').hide();
 
         function getKeyword(params) {
-            console.log(params);
+            // console.log(params);
             // if ("geolocation" in navigator) {
             // Get the user's current location
 
@@ -100,7 +104,7 @@
                         }).addTo(map2);
                         var iconMarker = L.icon({
                             iconUrl: '{{ asset('assets/img/marker/marker.png') }}',
-                            iconSize: [50, 50],
+                            iconSize: [100, 100],
                         })
 
                         // console.log(data.data);
@@ -114,14 +118,20 @@
                                         /r/g, '')
                                 ], {
                                     icon: iconMarker,
-                                    draggable: true
+                                    draggable: false
                                 })
                                 .bindPopup('Nama Jasa: ' + data.data[i].nama_jasa +
                                     ' <br> Jenis Jasa: ' +
                                     data.data[
                                         i].jenis_jasa + ' <br> Alamat: ' + data.data[i].alamat_jasa +
                                     '<div id="rateYo' + data.data[i].id +
-                                    '" style="margin-left: 38px;"></div><br>'
+                                    '" style="margin-left: 38px;"></div><br>' +
+                                    '<button class="btn btn-primary" onClick="routeLokasiSearch(' + data
+                                    .data[
+                                        i]
+                                    .latitude.replace(/r/g,
+                                        '') + ', ' + data.data[i].longitude.replace(/r/g, '') +
+                                    ')">Location </button>'
                                 )
                                 .addTo(map2);
                             // }
@@ -185,7 +195,7 @@
                         }
                         var marker2 = L.marker([latitude, longitude], {
                                 //icon:iconMarker,
-                                draggable: true
+                                draggable: false
                             })
                             .bindPopup('Titik Anda')
                             .addTo(map2);
@@ -194,15 +204,124 @@
                 }
 
             });
+        }
 
-            // console.log('asd');
+        function routeLokasiSearch(lat, long) {
+
+            console.log(lat);
+            console.log(long);
+
+            var params = $('#search').val();
+            console.log(params);
+            var rand = Math.floor(Math.random() * 10);
+            // console.log(data.data);
+            $('#adddiv').html('<div style="width: 100%; height: 500px;" id="map' + rand + '"></div>');
+            navigator.geolocation.getCurrentPosition(function(position) {
+                const latitude = position.coords.latitude;
+                const longitude = position.coords.longitude;
+                const map = L.map('map' + rand + '').setView([latitude, longitude], 10);
+                // console.log(latitude);
+                // console.log(longitude);
+                const tiles = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    maxZoom: 19,
+                    attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+                }).addTo(map);
+
+                var iconMarker = L.icon({
+                    iconUrl: '{{ asset('assets/img/marker/marker.png') }}',
+                    iconSize: [100, 100],
+                })
+
+                $.ajax({
+                    type: 'POST',
+                    url: '{{ route('getLotlatNotRouteParams') }}',
+                    data: {
+                        "_token": "{{ csrf_token() }}",
+                        lat: lat,
+                        long: long,
+                        keywords: params
+                    },
+                    async: true,
+                    dataType: 'json',
+                    success: function(data) {
+                        console.log(data);
+                        var control = L.Routing.control({
+                            createMarker: function(i, wp, nWps) {
+                                return L.marker([data.datalokasi[0].latitude.replace(/r/g,
+                                            ''),
+                                        data.datalokasi[0].longitude.replace(
+                                            /r/g, '')
+                                    ], {
+                                        icon: iconMarker,
+                                        draggable: false
+                                    })
+                                    .bindPopup('Nama Jasa: ' + data.datalokasi[0]
+                                        .nama_jasa +
+                                        ' <br> Jenis Jasa: ' +
+                                        data.datalokasi[0].jenis_jasa + ' <br> Alamat: ' +
+                                        data
+                                        .datalokasi[0].alamat_jasa +
+                                        '<br>' +
+                                        '<div id="rateYo' + data.datalokasi[0].id +
+                                        '" style="margin-left: 38px;"></div><br>' +
+                                        '<button class="btn btn-primary" onClick="routeLokasi(' +
+                                        data.datalokasi[
+                                            0].latitude.replace(/r/g,
+                                            '') + ', ' + data.datalokasi[0].longitude
+                                        .replace(
+                                            /r/g, '') +
+                                        ')">Location</button>'
+                                    )
+                                    .addTo(map);
+
+                            },
+                            waypoints: [
+                                L.latLng(latitude, longitude),
+                                L.latLng(lat, long)
+                            ],
+                            // routeWhileDragging: true
+                        }).addTo(map);
+                        var i;
+                        var r;
+                        var no = 1;
+                        for (i = 0; i < data.data.length; i++) {
 
 
+                            L.marker([data.data[i].latitude.replace(/r/g, ''), data.data[i].longitude
+                                    .replace(
+                                        /r/g, '')
+                                ], {
+                                    icon: iconMarker,
+                                    draggable: false
+                                })
+                                .bindPopup('Nama Jasa: ' + data.data[i].nama_jasa +
+                                    ' <br> Jenis Jasa: ' +
+                                    data.data[i].jenis_jasa + ' <br> Alamat: ' + data.data[i]
+                                    .alamat_jasa +
+                                    '<br>' +
+                                    '<div id="rateYo' + data.data[i].id +
+                                    '" style="margin-left: 38px;"></div><br>' +
+                                    '<button class="btn btn-primary" onClick="routeLokasi(' + data.data[
+                                        i].latitude.replace(/r/g,
+                                        '') + ', ' + data.data[i].longitude.replace(/r/g, '') +
+                                    ')">Location</button>'
+                                )
+                                .addTo(map);
+                            // console.log(data[i].rate);
+                            // gfg(data[i].rate);
+                        }
 
-            // });
-            // } else {
-            //     console.error("Geolocation is not available in this browser.");
-            // }
+                    }
+                });
+
+                var marker2 = L.marker([latitude, longitude], {
+                        //icon:iconMarker,
+                        draggable: false
+                    })
+                    .bindPopup('Titik Anda')
+                    .addTo(map);
+
+            })
         }
 
         function tampil_data() {
@@ -397,94 +516,81 @@
             });
         }
     </script>
-    @if (isset($user))
-        <script>
-            // Check if geolocation is available in the browser
-            if ("geolocation" in navigator) {
-                // Get the user's current location
-                navigator.geolocation.getCurrentPosition(function(position) {
-                    // The user's latitude and longitude are in position.coords.latitude and position.coords.longitude
-                    const latitude = position.coords.latitude;
-                    const longitude = position.coords.longitude;
 
-                    // console.log(latitude);
-
-                    const map = L.map('map').setView([latitude, longitude], 10);
-
-                    const tiles = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                        maxZoom: 19,
-                        attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-                    }).addTo(map);
-
-                    var iconMarker = L.icon({
-                        iconUrl: '{{ asset('assets/img/marker/marker.png') }}',
-                        iconSize: [50, 50],
-                    })
-                    $.ajax({
-                        type: 'GET',
-                        url: '{{ route('user.getLotlat') }}',
-                        async: true,
-                        dataType: 'json',
-                        success: function(data) {
-                            var i;
-                            var no = 1;
-                            for (i = 0; i < data.length; i++) {
-                                L.marker([data[i].latitude.replace(/r/g, ''), data[i].longitude.replace(
-                                        /r/g, '')], {
-                                        icon: iconMarker,
-                                        draggable: true
-                                    })
-                                    .bindPopup('Nama Jasa: ' + data[i].nama_jasa + ' <br> Jenis Jasa: ' +
-                                        data[i].jenis_jasa + ' <br> Alamat: ' + data[i].alamat_jasa +
-                                        '<br>' +
-                                        '<div id="rateYo' + data[i].id +
-                                        '" style="margin-left: 38px;"></div><br>'
-                                    )
-                                    .addTo(map);
+    <script>
+        if ("geolocation" in navigator) {
+            // Get the user's current location
+            navigator.geolocation.getCurrentPosition(function(position) {
+                // The user's latitude and longitude are in position.coords.latitude and position.coords.longitude
+                const latitude = position.coords.latitude;
+                const longitude = position.coords.longitude;
 
 
-                            }
+                const map = L.map('map').setView([latitude, longitude], 10);
+                // console.log(latitude);
+                // console.log(longitude);
+                const tiles = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    maxZoom: 19,
+                    attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+                }).addTo(map);
+
+                var iconMarker = L.icon({
+                    iconUrl: '{{ asset('assets/img/marker/marker.png') }}',
+                    iconSize: [100, 100],
+                })
+                $.ajax({
+                    type: 'GET',
+                    url: '{{ route('user.getLotlat') }}',
+                    async: true,
+                    dataType: 'json',
+                    success: function(data) {
+                        var i;
+                        var r;
+                        var no = 1;
+                        for (i = 0; i < data.length; i++) {
+
+                            L.marker([data[i].latitude.replace(/r/g, ''), data[i].longitude.replace(
+                                    /r/g, '')], {
+                                    icon: iconMarker,
+                                    draggable: false
+                                })
+                                .bindPopup('Nama Jasa: ' + data[i].nama_jasa + ' <br> Jenis Jasa: ' +
+                                    data[i].jenis_jasa + ' <br> Alamat: ' + data[i].alamat_jasa +
+                                    '<br>' +
+                                    '<div id="rateYo' + data[i].id +
+                                    '" style="margin-left: 38px;"></div><br>' +
+                                    '<button class="btn btn-primary" onClick="routeLokasi(' + data[i]
+                                    .latitude.replace(/r/g,
+                                        '') + ', ' + data[i].longitude.replace(/r/g, '') +
+                                    ')">Location </button>'
+                                )
+                                .addTo(map);
+                            // console.log(data[i].rate);
+                            // gfg(data[i].rate);
                         }
-                    });
-                    var marker2 = L.marker([latitude, longitude], {
-                            //icon:iconMarker,
-                            draggable: true
-                        })
-                        .bindPopup('Titik Anda')
-                        .addTo(map);
 
-                    // console.log(`Latitude: ${latitude}, Longitude: ${longitude}`);
-                }, function(error) {
-                    // Handle errors, if any
-                    switch (error.code) {
-                        case error.PERMISSION_DENIED:
-                            console.error("User denied the request for geolocation.");
-                            break;
-                        case error.POSITION_UNAVAILABLE:
-                            console.error("Location information is unavailable.");
-                            break;
-                        case error.TIMEOUT:
-                            console.error("The request to get user location timed out.");
-                            break;
-                        case error.UNKNOWN_ERROR:
-                            console.error("An unknown error occurred.");
-                            break;
                     }
                 });
-            } else {
-                console.error("Geolocation is not available in this browser.");
-            }
-        </script>
-    @else
-        <script>
-            if ("geolocation" in navigator) {
-                // Get the user's current location
+
+                var marker2 = L.marker([latitude, longitude], {
+                        //icon:iconMarker,
+                        draggable: false
+                    })
+                    .bindPopup('Titik Anda')
+                    .addTo(map);
+
+            });
+
+            function routeLokasi(lat, long) {
+                console.log(lat);
+                console.log(long);
+                var rand = Math.floor(Math.random() * 10);
+                // console.log(data.data);
+                $('#adddiv').html('<div style="width: 100%; height: 500px;" id="map' + rand + '"></div>');
                 navigator.geolocation.getCurrentPosition(function(position) {
-                    // The user's latitude and longitude are in position.coords.latitude and position.coords.longitude
                     const latitude = position.coords.latitude;
                     const longitude = position.coords.longitude;
-
-                    const map = L.map('map').setView([latitude, longitude], 10);
+                    const map = L.map('map' + rand + '').setView([latitude, longitude], 10);
                     // console.log(latitude);
                     // console.log(longitude);
                     const tiles = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -496,12 +602,32 @@
                         iconUrl: '{{ asset('assets/img/marker/marker.png') }}',
                         iconSize: [100, 100],
                     })
+
                     $.ajax({
-                        type: 'GET',
-                        url: '{{ route('user.getLotlat') }}',
+                        type: 'POST',
+                        url: '{{ route('getLotlatNotRoute') }}',
+                        data: {
+                            "_token": "{{ csrf_token() }}",
+                            lat: lat,
+                            long: long
+                        },
                         async: true,
                         dataType: 'json',
                         success: function(data) {
+                            var control = L.Routing.control({
+                                createMarker: function(i, wp, nWps) {
+                                    return L.marker([lat, long], {
+                                        icon: iconMarker,
+                                        draggable: false
+                                    })
+
+                                },
+                                waypoints: [
+                                    L.latLng(latitude, longitude),
+                                    L.latLng(lat, long)
+                                ],
+                                // routeWhileDragging: true
+                            }).addTo(map);
                             var i;
                             var r;
                             var no = 1;
@@ -511,13 +637,18 @@
                                 L.marker([data[i].latitude.replace(/r/g, ''), data[i].longitude.replace(
                                         /r/g, '')], {
                                         icon: iconMarker,
-                                        draggable: true
+                                        draggable: false
                                     })
-                                    .bindPopup('Nama Jasa: ' + data[i].nama_jasa + ' <br> Jenis Jasa: ' +
+                                    .bindPopup('Nama Jasa: ' + data[i].nama_jasa +
+                                        ' <br> Jenis Jasa: ' +
                                         data[i].jenis_jasa + ' <br> Alamat: ' + data[i].alamat_jasa +
                                         '<br>' +
                                         '<div id="rateYo' + data[i].id +
-                                        '" style="margin-left: 38px;"></div><br>'
+                                        '" style="margin-left: 38px;"></div><br>' +
+                                        '<button class="btn btn-primary" onClick="routeLokasi(' + data[
+                                            i].latitude.replace(/r/g,
+                                            '') + ', ' + data[i].longitude.replace(/r/g, '') +
+                                        ')">Location</button>'
                                     )
                                     .addTo(map);
                                 // console.log(data[i].rate);
@@ -529,17 +660,18 @@
 
                     var marker2 = L.marker([latitude, longitude], {
                             //icon:iconMarker,
-                            draggable: true
+                            draggable: false
                         })
                         .bindPopup('Titik Anda')
                         .addTo(map);
 
-                });
-            } else {
-                console.error("Geolocation is not available in this browser.");
+                })
             }
-        </script>
-    @endif
+        } else {
+            console.error("Geolocation is not available in this browser.");
+        }
+    </script>
+
 
 @endsection
 

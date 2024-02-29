@@ -37,6 +37,27 @@ class HomePage extends Controller
     $data = DB::select("select u.name, u.uid, j.*, (SELECT SUM(r.rate) / COUNT(id)  FROM rating r WHERE r.jasa_id=j.user_id) as rating from users u, jasa j where u.uid=j.user_id");
     echo json_encode($data);
   }
+  function getLotlatNotRoute(Request $request)
+  {
+
+    $data = DB::select("select u.name, u.uid, j.*, (SELECT SUM(r.rate) / COUNT(id)  FROM rating r WHERE r.jasa_id=j.user_id) as rating from users u, jasa j where u.uid=j.user_id AND j.latitude != '" . $request->lat . "' AND j.longitude != '" . $request->long . "'");
+    echo json_encode($data);
+  }
+  function getLotlatNotRouteParams(Request $request)
+  {
+    $sql = '';
+
+    if ($request->keywords) {
+      $sql = "and j.jenis_jasa like '%" . $request->keywords . "%'";
+    }
+    $datalokasi = DB::select("select u.name, u.uid, j.*, (SELECT SUM(r.rate) / COUNT(id)  FROM rating r WHERE r.jasa_id=j.user_id) as rating from users u, jasa j where u.uid=j.user_id AND j.latitude = '" . $request->lat . "' AND j.longitude = '" . $request->long . "'");
+    $data = DB::select("select u.name, u.uid, j.*, (SELECT SUM(r.rate) / COUNT(id)  FROM rating r WHERE r.jasa_id=j.user_id) as rating from users u, jasa j where u.uid=j.user_id AND j.latitude != '" . $request->lat . "' AND j.longitude != '" . $request->long . "' $sql");
+    return response()->json([
+      'succes' => true,
+      'data' => $data,
+      'datalokasi' => $datalokasi
+    ]);
+  }
   function searchgetLotlat(Request $request)
   {
     // $request = request();

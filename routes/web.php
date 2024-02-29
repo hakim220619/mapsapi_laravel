@@ -42,6 +42,8 @@ Route::get('/getLotlat', [HomePage::class, 'getLotlat'])->name('user.getLotlat')
 Route::get('/searchgetLotlat', [HomePage::class, 'searchgetLotlat'])->name('user.searchgetLotlat');
 Route::get('/getMessage', [HomePage::class, 'getMessage'])->name('user.getMessage');
 Route::post('/messgaeSend', [HomePage::class, 'messgaeSend'])->name('messgaeSend');
+Route::post('/getLotlatNotRoute', [HomePage::class, 'getLotlatNotRoute'])->name('getLotlatNotRoute');
+Route::post('/getLotlatNotRouteParams', [HomePage::class, 'getLotlatNotRouteParams'])->name('getLotlatNotRouteParams');
 Route::middleware(['auth'])->group(function () {
     Route::get('/logout', [AuthController::class, 'logout'])->name('logoutFix');
     Route::get('/logout_users', [AuthController::class, 'logout_users'])->name('logout_usersFix');
