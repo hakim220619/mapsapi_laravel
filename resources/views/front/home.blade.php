@@ -65,164 +65,154 @@
         tampil_data();
         $('#map2').hide();
 
-        function getKeyword(params) {
-            // console.log(params);
-            // if ("geolocation" in navigator) {
-            // Get the user's current location
+        function getKeyword(params, goalLatitude, goalLongitude) {
+            // Clear the map area and any existing content
+            $('#map').html("");
+            $('#adddiv').html('<div style="width: 100%; height: 500px;" id="map"></div>');
 
-
-            // $("#map").html("");
-            // document.getElementById('map').innerHTML =
-            //     "< div id='map' style='width: 100%; height: 100%;'>";
-
+            // Make an AJAX GET request to the specified route
             $.ajax({
                 type: 'GET',
                 url: '{{ route('user.searchgetLotlat') }}',
                 data: {
-                    // "_token": "{{ csrf_token() }}",
                     keywords: params
                 },
                 async: true,
                 dataType: 'json',
                 success: function(data) {
+                    // Hide initial map and data display areas
                     $('#map').hide();
                     $('#show_data').hide();
-                    // $('#map2').show();
+
+                    // Generate a random number to use for a unique map ID
                     var rand = Math.floor(Math.random() * 10);
-                    // console.log(data.data);
                     $('#adddiv').html('<div style="width: 100%; height: 500px;" id="map' + rand + '"></div>');
+
+                    // Get the user's current geolocation
                     navigator.geolocation.getCurrentPosition(function(position) {
                         const latitude = position.coords.latitude;
                         const longitude = position.coords.longitude;
 
-                        const map2 = L.map('map' + rand + '').setView([latitude, longitude], 10);
-
-                        // console.log(longitude);
-                        const tiles = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                        // Initialize a new Leaflet map
+                        const map2 = L.map('map' + rand).setView([latitude, longitude], 10);
+                        L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
                             maxZoom: 19,
                             attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
                         }).addTo(map2);
+
+                        // Define the marker icon
                         var iconMarker = L.icon({
                             iconUrl: '{{ asset('assets/img/marker/marker.png') }}',
                             iconSize: [100, 100],
-                        })
+                        });
 
-                        // console.log(data.data);
-                        var i;
-                        var no = 1;
-                        for (i = 0; i < data.data.length; i++) {
-                            // function onLocationFound(e) {
-                            // console.log(e);
-                            L.marker([data.data[i].latitude.replace(/r/g, ''), data.data[i].longitude
-                                    .replace(
-                                        /r/g, '')
-                                ], {
+                        // Function to calculate the heuristic (straight-line distance) from a point to the goal
+                        function heuristic(lat1, lon1, lat2, lon2) {
+                            const R = 6371; // Radius of the Earth in km
+                            const dLat = (lat2 - lat1) * Math.PI / 180;
+                            const dLon = (lon2 - lon1) * Math.PI / 180;
+                            const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+                                Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+                                Math.sin(dLon / 2) * Math.sin(dLon / 2);
+                            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+                            return R * c; // Distance in km
+                        }
+
+                        // Sort the data based on the heuristic (distance to the goal)
+                        data.data.sort((a, b) => {
+                            const distA = heuristic(a.latitude, a.longitude, goalLatitude,
+                                goalLongitude);
+                            const distB = heuristic(b.latitude, b.longitude, goalLatitude,
+                                goalLongitude);
+                            return distA - distB;
+                        });
+
+                        // Loop through the sorted data and create markers for each item
+                        data.data.forEach(item => {
+                            L.marker([item.latitude.replace(/r/g, ''), item.longitude.replace(
+                                    /r/g, '')], {
                                     icon: iconMarker,
                                     draggable: false
                                 })
-                                .bindPopup('Nama Jasa: ' + data.data[i].nama_jasa +
-                                    ' <br> Jenis Jasa: ' +
-                                    data.data[
-                                        i].jenis_jasa + ' <br> Alamat: ' + data.data[i].alamat_jasa +
-                                    '<div id="rateYo' + data.data[i].id +
-                                    '" style="margin-left: 38px;"></div><br>' +
-                                    '<button class="btn btn-primary" onClick="routeLokasiSearch(' + data
-                                    .data[
-                                        i]
-                                    .latitude.replace(/r/g,
-                                        '') + ', ' + data.data[i].longitude.replace(/r/g, '') +
-                                    ')">Location </button>'
-                                )
+                                .bindPopup(`
+                        Nama Jasa: ${item.nama_jasa} <br> 
+                        Jenis Jasa: ${item.jenis_jasa} <br> 
+                        Alamat: ${item.alamat_jasa} <br>
+                        <div id="rateYo${item.id}" style="margin-left: 38px;"></div><br>
+                        <button class="btn btn-primary" onClick="routeLokasiSearch(${item.latitude.replace(/r/g, '')}, ${item.longitude.replace(/r/g, '')})">Location</button>
+                    `)
                                 .addTo(map2);
-                            // }
+                        });
 
-                            // map2.on('locationfound', onLocationFound);
-
-                        }
-                        $('#show_data2').html(
-                            '<h3 class="text-center mb-2"><span class="fw-bold">List</span> Jasa</h3><div class="row gy-5 mt-2" id="dataShow' +
-                            rand + '">');
+                        // Display the list of services below the map
+                        $('#show_data2').html(`
+                    <h3 class="text-center mb-2">
+                        <span class="fw-bold">List</span> Jasa
+                    </h3>
+                    <div class="row gy-5 mt-2" id="dataShow${rand}"></div>
+                `);
                         var html = '';
-                        for (i = 0; i < data.data.length; i++) {
-                            // console.log(data.data);
-                            html += '<div class="col-lg-3 col-sm-6">' +
-                                '<div class="card card-hover-border-primary mt-3 mt-lg-0 shadow-none">' +
-                                '<div class="bg-label-primary position-relative team-image-box">' +
-                                ' <img src="{{ asset('') }}storage/images/jasa/' + data.data[i]
-                                .image +
-                                '" alt="section title icon" class="me-2" />' +
-                                '</div>' +
-                                '<div class="card-body text-center">' +
-                                '<h5 class="card-title fw-semibold mb-1">' + data.data[i].nama_jasa +
-                                '</h5>' +
-                                ' <p class="card-text">' + data.data[i].jenis_jasa + '</p>' +
-                                '<div id="rateYo' + data.data[i].id +
-                                '" style="margin-left: 40px;"></div>' +
-                                '<div class="text-center team-media-icons"><button type="button" class="btn btn-primary" onclick="openModal()"> Chat </button>' +
-                                '<button type="button" class="btn btn-success ms-1" onclick="ratingOpen(' +
-                                data.data[i]
-                                .uid +
-                                ')"> Rating </button>' +
-                                '</div>' +
-                                '</div>' +
-                                '</div>' +
-                                '</div>';
-                        }
-                        // console.log(html);
-                        $('#dataShow' + rand + '').html(html);
-                        for (i = 0; i < data.data.length; i++) {
-                            if (data.data[i].rating == null) {
-                                $("#rateYo" + data.data[i].id + "").rateYo({
-                                    rating: 0,
-                                    spacing: "10px",
-                                    numStars: 5,
-                                    minValue: 0,
-                                    maxValue: 5,
-                                    normalFill: 'black',
-                                    ratedFill: 'orange',
-                                })
-                            } else {
-                                $("#rateYo" + data.data[i].id + "").rateYo({
-                                    rating: data.data[i].rating,
-                                    spacing: "10px",
-                                    numStars: 5,
-                                    minValue: 0,
-                                    maxValue: 5,
-                                    normalFill: 'black',
-                                    ratedFill: 'orange',
-                                })
-                            }
-                        }
-                        var marker2 = L.marker([latitude, longitude], {
-                                //icon:iconMarker,
+                        data.data.forEach(item => {
+                            html += `
+                        <div class="col-lg-3 col-sm-6">
+                            <div class="card card-hover-border-primary mt-3 mt-lg-0 shadow-none">
+                                <div class="bg-label-primary position-relative team-image-box">
+                                    <img src="{{ asset('') }}storage/images/jasa/${item.image}" alt="section title icon" class="me-2" />
+                                </div>
+                                <div class="card-body text-center">
+                                    <h5 class="card-title fw-semibold mb-1">${item.nama_jasa}</h5>
+                                    <p class="card-text">${item.jenis_jasa}</p>
+                                    <div id="rateYo${item.id}" style="margin-left: 40px;"></div>
+                                    <div class="text-center team-media-icons">
+                                        <button type="button" class="btn btn-primary" onclick="openModal()">Chat</button>
+                                        <button type="button" class="btn btn-success ms-1" onclick="ratingOpen(${item.uid})">Rating</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                        });
+                        $('#dataShow' + rand).html(html);
+
+                        // Initialize rating widgets for each service
+                        data.data.forEach(item => {
+                            $("#rateYo" + item.id).rateYo({
+                                rating: item.rating ? item.rating : 0,
+                                spacing: "10px",
+                                numStars: 5,
+                                minValue: 0,
+                                maxValue: 5,
+                                normalFill: 'black',
+                                ratedFill: 'orange'
+                            });
+                        });
+
+                        // Add the user's current location to the map
+                        L.marker([latitude, longitude], {
                                 draggable: false
                             })
                             .bindPopup('Titik Anda')
                             .addTo(map2);
-
-                    })
+                    });
                 }
-
             });
         }
 
         function routeLokasiSearch(lat, long) {
-
             console.log(lat);
             console.log(long);
 
             var params = $('#search').val();
             console.log(params);
             var rand = Math.floor(Math.random() * 10);
-            // console.log(data.data);
             $('#adddiv').html('<div style="width: 100%; height: 500px;" id="map' + rand + '"></div>');
+
             navigator.geolocation.getCurrentPosition(function(position) {
                 const latitude = position.coords.latitude;
                 const longitude = position.coords.longitude;
                 const map = L.map('map' + rand + '').setView([latitude, longitude], 10);
-                // console.log(latitude);
-                // console.log(longitude);
-                const tiles = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+
+                L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
                     maxZoom: 19,
                     attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
                 }).addTo(map);
@@ -230,7 +220,7 @@
                 var iconMarker = L.icon({
                     iconUrl: '{{ asset('assets/img/marker/marker.png') }}',
                     iconSize: [100, 100],
-                })
+                });
 
                 $.ajax({
                     type: 'POST',
@@ -245,84 +235,79 @@
                     dataType: 'json',
                     success: function(data) {
                         console.log(data);
+
+                        // Heuristic function to calculate straight-line distance
+                        function heuristic(lat1, lon1, lat2, lon2) {
+                            const R = 6371; // Radius of the Earth in km
+                            const dLat = (lat2 - lat1) * Math.PI / 180;
+                            const dLon = (lon2 - lon1) * Math.PI / 180;
+                            const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+                                Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+                                Math.sin(dLon / 2) * Math.sin(dLon / 2);
+                            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+                            return R * c; // Distance in km
+                        }
+
+                        // Sort data based on distance to the goal
+                        data.data.sort((a, b) => {
+                            const distA = heuristic(a.latitude, a.longitude, lat, long);
+                            const distB = heuristic(b.latitude, b.longitude, lat, long);
+                            return distA - distB;
+                        });
+
+                        // Add routing control with the closest service first
                         var control = L.Routing.control({
                             createMarker: function(i, wp, nWps) {
                                 return L.marker([data.datalokasi[0].latitude.replace(/r/g,
                                             ''),
-                                        data.datalokasi[0].longitude.replace(
-                                            /r/g, '')
+                                        data.datalokasi[0].longitude.replace(/r/g, '')
                                     ], {
                                         icon: iconMarker,
                                         draggable: false
                                     })
-                                    .bindPopup('Nama Jasa: ' + data.datalokasi[0]
-                                        .nama_jasa +
-                                        ' <br> Jenis Jasa: ' +
-                                        data.datalokasi[0].jenis_jasa + ' <br> Alamat: ' +
-                                        data
-                                        .datalokasi[0].alamat_jasa +
-                                        '<br>' +
-                                        '<div id="rateYo' + data.datalokasi[0].id +
-                                        '" style="margin-left: 38px;"></div><br>' +
-                                        '<button class="btn btn-primary" onClick="routeLokasi(' +
-                                        data.datalokasi[
-                                            0].latitude.replace(/r/g,
-                                            '') + ', ' + data.datalokasi[0].longitude
-                                        .replace(
-                                            /r/g, '') +
-                                        ')">Location</button>'
-                                    )
+                                    .bindPopup(`
+                                        Nama Jasa: ${data.datalokasi[0].nama_jasa} <br> 
+                                        Jenis Jasa: ${data.datalokasi[0].jenis_jasa} <br> 
+                                        Alamat: ${data.datalokasi[0].alamat_jasa} <br>
+                                        <div id="rateYo${data.datalokasi[0].id}" style="margin-left: 38px;"></div><br>
+                                        <button class="btn btn-primary" onClick="routeLokasi(${data.datalokasi[0].latitude.replace(/r/g, '')}, ${data.datalokasi[0].longitude.replace(/r/g, '')})">Location</button>
+                                    `)
                                     .addTo(map);
-
                             },
                             waypoints: [
                                 L.latLng(latitude, longitude),
                                 L.latLng(lat, long)
                             ],
-                            // routeWhileDragging: true
                         }).addTo(map);
-                        var i;
-                        var r;
-                        var no = 1;
-                        for (i = 0; i < data.data.length; i++) {
 
-
-                            L.marker([data.data[i].latitude.replace(/r/g, ''), data.data[i].longitude
-                                    .replace(
-                                        /r/g, '')
-                                ], {
+                        // Add markers for each service location
+                        data.data.forEach(item => {
+                            L.marker([item.latitude.replace(/r/g, ''), item.longitude.replace(
+                                    /r/g, '')], {
                                     icon: iconMarker,
                                     draggable: false
                                 })
-                                .bindPopup('Nama Jasa: ' + data.data[i].nama_jasa +
-                                    ' <br> Jenis Jasa: ' +
-                                    data.data[i].jenis_jasa + ' <br> Alamat: ' + data.data[i]
-                                    .alamat_jasa +
-                                    '<br>' +
-                                    '<div id="rateYo' + data.data[i].id +
-                                    '" style="margin-left: 38px;"></div><br>' +
-                                    '<button class="btn btn-primary" onClick="routeLokasi(' + data.data[
-                                        i].latitude.replace(/r/g,
-                                        '') + ', ' + data.data[i].longitude.replace(/r/g, '') +
-                                    ')">Location</button>'
-                                )
+                                .bindPopup(`
+                        Nama Jasa: ${item.nama_jasa} <br> 
+                        Jenis Jasa: ${item.jenis_jasa} <br> 
+                        Alamat: ${item.alamat_jasa} <br>
+                        <div id="rateYo${item.id}" style="margin-left: 38px;"></div><br>
+                        <button class="btn btn-primary" onClick="routeLokasi(${item.latitude.replace(/r/g, '')}, ${item.longitude.replace(/r/g, '')})">Location</button>
+                    `)
                                 .addTo(map);
-                            // console.log(data[i].rate);
-                            // gfg(data[i].rate);
-                        }
-
+                        });
                     }
                 });
 
-                var marker2 = L.marker([latitude, longitude], {
-                        //icon:iconMarker,
+                // Add the user's current location marker
+                L.marker([latitude, longitude], {
                         draggable: false
                     })
                     .bindPopup('Titik Anda')
                     .addTo(map);
-
-            })
+            });
         }
+
 
         function tampil_data() {
 
